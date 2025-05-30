@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Kvíz részletei</title>
+    <style>
+        .spravne { color: green; font-weight: bold; }
+        .nespravne { color: red; }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Kvíz részletei</h1>
+    <div id="obsah"></div>
+    <button onclick="window.location.href='dashboard.html'">Vissza a főmenübe</button>
+
+   <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const kvizId = urlParams.get("id");
+
+    if (!kvizId) {
+        $("#obsah").text("Hiányzó kvízazonosító.");
+    } else {
+        $.get(`/kviz/detail/${kvizId}`, function(data) {
+            if (!Array.isArray(data) || data.length === 0) {
+                $("#obsah").text("A kvíz nem található vagy nem tartalmaz válaszokat.");
+                return;
+            }
+
+            let html = "<ol>";
+            data.forEach(zaznam => {
+                html += `<li>`;
+                html += `<p><strong>Kérdés:</strong> ${zaznam.otazka}</p>`;
+
+                //kep
+                if (zaznam.obrazky && zaznam.obrazky.length > 0) {
+                    zaznam.obrazky.forEach(kep => {
+                        html += `<img src="img/${kep}" alt="Kép" style="max-width: 300px;"><br>`;
+                    });
+                }
+
+                //valaszok
+                html += `<ul>`;
+                zaznam.odpovede.forEach(valasz => {
+                    const isSelected = zaznam.valasztott === valasz.id;
+                    const isCorrect = valasz.jeSpravna;
+
+                    let style = "";
+                    if (isCorrect) style += "color: green; font-weight: bold;";
+                    if (isSelected && !isCorrect) style += "color: red;";
+
+                    html += `<li style="${style}">`;
+                    if (isSelected) html += "--> ";
+                    html += `${valasz.text}`;
+                    html += `</li>`;
+                });
+                html += `</ul>`;
+
+                html += `</li><hr>`;
+            });
+            html += "</ol>";
+
+            $("#obsah").html(html);
+        }).fail(() => {
+            $("#obsah").text("Nem sikerült betölteni a kvíz részleteit.");
+        });
+    }
+</script>
+
+</body>
+</html>

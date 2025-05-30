@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <title>Kiejelentkezes</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Kiejelentkezes</h1>
+    <button id="logoutBtn">Kiejelentkezes</button>
+    <div id="vysledok"></div>
+
+    <script>
+        $("#logoutBtn").click(function() {
+            $.post("/pouzivatel/odhlasit")
+                .done(function(data) {
+                    $("#vysledok").text("OK " + data);
+                })
+                .fail(function(xhr) {
+                    $("#vysledok").text("HIBA/ERROR " + xhr.responseText);
+                });
+        });
+    </script>
+</body>
+</html>

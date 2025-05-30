@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <title>Atiranyitas</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<script>
+    $.get("/pouzivatel/kto")
+        .done(() => window.location.href = "dashboard.html")
+        .fail(() => window.location.href = "login.html");
+</script>
+Atiranyitas......
+</body>
+</html>

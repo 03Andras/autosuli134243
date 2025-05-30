@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Kvíz</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div style="text-align: right; margin-bottom: 10px;">
+        <button id="langToggle">English</button>
+    </div>
+
+    <h1 id="nadpis">Kresz teszt</h1>
+
+    <div>
+        <span id="casovyText">Hátralévő idő:</span>
+        <span id="timer">05:00</span>
+    </div>
+
+    <div id="jazykWarning" style="color: darkred; margin-top: 10px; font-weight: bold;"></div>
+
+    <form id="kvizForm"></form>
+    <button id="submitBtn">Válaszok beküldése</button>
+    <div id="vysledok"></div>
+    <div id="redirectTimer" style="font-weight: bold; color: green; margin-top: 10px;"></div>
+
+    <script>
+        let currentLang = "hu";
+
+        const texts = {
+            hu: {
+                title: "Kresz teszt",
+                timeLabel: "Hátralévő idő:",
+                submit: "Válaszok beküldése",
+                resultPrefix: " Eredmény:",
+                errorPrefix: " Hiba a beküldés során:",
+                timeout: "Lejárt az idő. A teszt beküldésre került.",
+                langButton: " English",
+                langWarning: "",
+                redirectMsg: " Átirányítás a főoldalra "
+            },
+            en: {
+                title: "Traffic Rules Test",
+                timeLabel: "Time remaining:",
+                submit: "Submit answers",
+                resultPrefix: " Result:",
+                errorPrefix: " Submission error:",
+                timeout: " Time is up. The test has been submitted.",
+                langButton: " Magyar",
+                langWarning: " Questions are only available in the original HU language.",
+                redirectMsg: " Redirecting to main page in "
+            }
+        };
+
+        function updateLanguage(lang) {
+            $("title").text(texts[lang].title);
+            $("#nadpis").text(texts[lang].title);
+            $("#casovyText").text(texts[lang].timeLabel);
+            $("#submitBtn").text(texts[lang].submit);
+            $("#langToggle").text(texts[lang].langButton);
+            $("#jazykWarning").text(texts[lang].langWarning);
+        }
+
+        let otazky = [];
+
+        $.get("/kviz/start", function(data) {
+            otazky = data;
+            let html = "";
+            data.forEach((otazka, index) => {
+                html += `<fieldset><legend>${index + 1}. ${otazka.text}</legend>`;
+
+                if (otazka.obrazky && otazka.obrazky.length > 0) {
+                    otazka.obrazky.forEach(img => {
+                        html += `
+                            <img src="/img/${img}" alt="kép" style="max-width:300px"
+                                onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<div style=\\'color:red;font-weight:bold\\'>[Sajnos a  ${img}] kép nem volt a csatolt fájlok között</div>');">
+                            <br>`;
+                    });
+                }
+
+
+                otazka.odpovede.forEach(odpoved => {
+                    html += `
+                        <label>
+                            <input type="radio" name="otazka_${otazka.id}" value="${odpoved.id}">
+                            ${odpoved.text}
+                        </label><br>`;
+                });
+                html += `</fieldset><br>`;
+            });
+            $("#kvizForm").html(html);
+        });
+
+        $("#submitBtn").click(function(e) {
+            e.preventDefault();
+
+            const odpovede = [];
+            otazky.forEach(otazka => {
+                const odpovedId = $(`input[name="otazka_${otazka.id}"]:checked`).val();
+                odpovede.push({
+                    otazkaId: otazka.id,
+                    odpovedId: odpovedId ? parseInt(odpovedId) : null
+                });
+            });
+
+            $.ajax({
+                url: "/kviz/odosli",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(odpovede),
+                success: function(data) {
+                    clearInterval(timerInterval);
+                    $("#vysledok").text(`${texts[currentLang].resultPrefix} ${data.bodov} / ${data.max}`);
+                    $("#submitBtn").prop("disabled", true);
+                    startRedirectCountdown();
+                },
+                error: function(xhr) {
+                    $("#vysledok").text(`${texts[currentLang].errorPrefix} ${xhr.responseText}`);
+                }
+            });
+        });
+
+        let limitMinut = 5;
+        let remainingSeconds = limitMinut * 60;
+
+        function updateTimer() {
+            let min = Math.floor(remainingSeconds / 60);
+            let sec = remainingSeconds % 60;
+            $("#timer").text(
+                (min < 10 ? "0" : "") + min + ":" + (sec < 10 ? "0" : "") + sec
+            );
+
+            if (remainingSeconds === 0) {
+                clearInterval(timerInterval);
+                alert(texts[currentLang].timeout);
+                $("#submitBtn").click();
+            }
+
+            remainingSeconds--;
+        }
+
+        let timerInterval = setInterval(updateTimer, 1000);
+        updateTimer();
+
+        $("#langToggle").click(function() {
+            currentLang = currentLang === "hu" ? "en" : "hu";
+            updateLanguage(currentLang);
+        });
+
+        function startRedirectCountdown() {
+            let countdown = 10;
+            $("#redirectTimer").text(`${texts[currentLang].redirectMsg}${countdown}...`);
+
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                $("#redirectTimer").text(`${texts[currentLang].redirectMsg}${countdown}...`);
+
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    window.location.href = "index.html";
+                }
+            }, 1000);
+        }
+
+        updateLanguage(currentLang);
+    </script>
+</body>
+</html>

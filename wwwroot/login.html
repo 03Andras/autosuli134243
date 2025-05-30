@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Bejelentkezés / Login</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1 id="nadpis">Bejelentkezés</h1>
+    
+    <form id="loginForm">
+        <label id="emailLabel">Email:</label>
+        <input type="email" name="email" required><br>
+        
+        <label id="hesloLabel">Jelszó:</label>
+        <input type="password" name="heslo" required><br>
+        
+        <button type="submit" id="loginBtn">Bejelentkezés</button>
+    </form>
+
+    <div id="vysledok" style="margin-top: 10px;"></div>
+
+    <p>
+        <button onclick="location.href='signup.html'" id="registerBtn">Regisztráció</button>
+    </p>
+
+    <p>
+        <button id="langToggle"> English</button>
+    </p>
+
+    <script>
+        let currentLang = "hu";
+
+        const texts = {
+            hu: {
+                title: "Bejelentkezés",
+                email: "Email:",
+                password: "Jelszó:",
+                login: "Bejelentkezés",
+                register: "Regisztráció",
+                errorPrefix: "HIBA:",
+                langButton: " English"
+            },
+            en: {
+                title: "Login",
+                email: "Email:",
+                password: "Password:",
+                login: "Log in",
+                register: "Register",
+                errorPrefix: "ERROR:",
+                langButton: " Magyar"
+            }
+        };
+
+        function updateLanguage(lang) {
+            $("#nadpis").text(texts[lang].title);
+            $("#emailLabel").text(texts[lang].email);
+            $("#hesloLabel").text(texts[lang].password);
+            $("#loginBtn").text(texts[lang].login);
+            $("#registerBtn").text(texts[lang].register);
+            $("#langToggle").text(texts[lang].langButton);
+        }
+
+        $("#langToggle").click(function() {
+            currentLang = currentLang === "hu" ? "en" : "hu";
+            updateLanguage(currentLang);
+        });
+
+        $("#loginForm").submit(function(e) {
+            e.preventDefault();
+
+            $.post("/pouzivatel/prihlasenie", {
+                email: $("input[name='email']").val(),
+                heslo: $("input[name='heslo']").val()
+            })
+            .done(function(data) {
+                location.href = "dashboard.html";
+            })
+            .fail(function(xhr) {
+                $("#vysledok").text((texts[currentLang].errorPrefix || "ERROR:") + " " + xhr.responseText);
+            });
+        });
+
+        updateLanguage(currentLang);
+    </script>
+</body>
+</html>

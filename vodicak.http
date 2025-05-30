@@ -1,0 +1,6 @@
+@vodicak_HostAddress = http://localhost:5115
+
+GET {{vodicak_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

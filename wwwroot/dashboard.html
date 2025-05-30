@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Saját oldalam</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1 id="nadpis">Üdv újra itt!</h1>
+    <p id="info"></p>
+
+    <h2 id="zoznamKvizov">Korábbi kvízeid</h2>
+    <ul id="kvizy"></ul>
+
+    <button id="spustitBtn" onclick="location.href='kviz.html'">Új kvíz indítása</button>
+    <button id="logout">Kijelentkezés</button>
+    <button id="langToggle"> English</button>
+
+    <script>
+        let currentLang = "hu";
+
+        const texts = {
+            hu: {
+                title: "Saját oldalam",
+                welcome: "Üdv újra itt!",
+                quizzes: "Korábbi kvízeid",
+                startQuiz: "Új kvíz indítása",
+                logout: "Kijelentkezés",
+                logoutAlert: "Sikeresen kijelentkeztél.",
+                langButton: " English",
+                kvizPrefix: "Kvíz ekkor:",
+                points: "pont"
+            },
+            en: {
+                title: "My Page",
+                welcome: "Welcome back!",
+                quizzes: "Your quizzes",
+                startQuiz: "Start new quiz",
+                logout: "Log out",
+                logoutAlert: "You have been logged out.",
+                langButton: "Magyar",
+                kvizPrefix: "Quiz from",
+                points: "points"
+            }
+        };
+
+        function updateLanguage(lang) {
+            $("title").text(texts[lang].title);
+            $("#nadpis").text(texts[lang].welcome);
+            $("#zoznamKvizov").text(texts[lang].quizzes);
+            $("#spustitBtn").text(texts[lang].startQuiz);
+            $("#logout").text(texts[lang].logout);
+            $("#langToggle").text(texts[lang].langButton);
+            updateQuizList(lang);
+        }
+
+        function updateQuizList(lang) {
+            $("#kvizy").empty();
+            $.get("/kviz/moje").done(function(zoznam) {
+                
+                zoznam.forEach(k => {
+                    $("#kvizy").append(`<li>
+                        <a href="kviz_detail.html?id=${k.id}">${texts[lang].kvizPrefix} ${k.datum}</a> — ${k.bodov}/${k.max} ${texts[lang].points}
+                    </li>`);
+                });
+            });
+        }
+
+        $.get("/pouzivatel/kto").done(function(data) {
+            $("#info").text(data);
+        });
+
+        updateQuizList(currentLang);
+
+        $("#logout").click(function() {
+            $.post("/pouzivatel/odhlasit").done(() => {
+                alert(texts[currentLang].logoutAlert);
+                location.href = "index.html";
+            });
+        });
+
+        $("#langToggle").click(function() {
+            currentLang = currentLang === "hu" ? "en" : "hu";
+            updateLanguage(currentLang);
+        });
+
+        updateLanguage(currentLang);
+    </script>
+</body>
+</html>

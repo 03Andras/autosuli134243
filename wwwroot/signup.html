@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Regisztráció / Registration</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1 id="nadpis">Felhasználó regisztrációja</h1>
+
+    <form id="regForm">
+        <label id="menoLabel">Név:</label>
+        <input type="text" name="meno" required><br>
+
+        <label id="emailLabel">Email:</label>
+        <input type="email" name="email" required><br>
+
+        <label id="hesloLabel">Jelszó:</label>
+        <input type="password" name="heslo" required><br>
+
+        <button type="submit" id="regBtn">Regisztráció</button>
+    </form>
+
+    <div id="vysledok" style="margin-top: 10px;"></div>
+
+    <p>
+        <button onclick="location.href='login.html'" id="backBtn">Bejelentkezés</button>
+    </p>
+
+    <p>
+        <button id="langToggle">English</button>
+    </p>
+
+    <script>
+        let currentLang = "hu";
+
+        const texts = {
+            hu: {
+                title: "Felhasználó regisztrációja",
+                meno: "Név:",
+                email: "Email:",
+                heslo: "Jelszó:",
+                regBtn: "Regisztráció",
+                back: "Bejelentkezés",
+                langButton: "English",
+                okPrefix: "OK ",
+                errorPrefix: "HIBA! "
+            },
+            en: {
+                title: "User Registration",
+                meno: "Name:",
+                email: "Email:",
+                heslo: "Password:",
+                regBtn: "Register",
+                back: "Back to login",
+                langButton: "Magyar",
+                okPrefix: "OK ",
+                errorPrefix: "ERROR! "
+            }
+        };
+
+        function updateLanguage(lang) {
+            $("#nadpis").text(texts[lang].title);
+            $("#menoLabel").text(texts[lang].meno);
+            $("#emailLabel").text(texts[lang].email);
+            $("#hesloLabel").text(texts[lang].heslo);
+            $("#regBtn").text(texts[lang].regBtn);
+            $("#backBtn").text(texts[lang].back);
+            $("#langToggle").text(texts[lang].langButton);
+        }
+
+        $("#langToggle").click(function() {
+            currentLang = currentLang === "hu" ? "en" : "hu";
+            updateLanguage(currentLang);
+        });
+
+        $("#regForm").submit(function(e) {
+            e.preventDefault();
+
+            $.post("/pouzivatel/registracia", {
+                meno: $("input[name='meno']").val(),
+                email: $("input[name='email']").val(),
+                heslo: $("input[name='heslo']").val()
+            })
+            .done(function(data) {
+                $("#vysledok").text(texts[currentLang].okPrefix + data);
+            })
+            .fail(function(xhr) {
+                $("#vysledok").text(texts[currentLang].errorPrefix + xhr.responseText);
+            });
+        });
+
+        updateLanguage(currentLang);
+    </script>
+</body>
+</html>
