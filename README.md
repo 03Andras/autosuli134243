@@ -100,7 +100,6 @@ autosuli134243-main/
 - [Bootstrap 5](https://getbootstrap.com/)
 - [GitHub – Simple Quiz API C#](https://github.com/dotnet/samples)
 - [System.Text.Json példák](https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-how-to)
-- [Stack Overflow – JSON deserie- muveletek]([https://github.com/dotnet/samples](https://stackoverflow.com/questions/3316762/what-is-deserialize-and-serialize-in-json))
 - [CodeMaze – JSON feldolgozás C#-ban](https://code-maze.com/csharp-json-serialization/)
 - Kérdések, képek forrása: https://cloud.ujs.sk/index.php/s/MG0fXgaXEYTH6VU
 - Kódszervezéshez és hibakereséshez segítségül használtam AI-t konkrétan az OpenAI által fejlesztett ChatGPT modelljét.
