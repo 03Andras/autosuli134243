@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Saját oldalam</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <h1 id="nadpis">Üdv újra itt!</h1>
-    <p id="info"></p>
+    <div class="container">
+        <button id="langToggle" class="lang-toggle"> English</button>
+        <h1 id="nadpis">Üdv újra itt!</h1>
+        <p id="info"></p>
 
-    <h2 id="zoznamKvizov">Korábbi kvízeid</h2>
-    <ul id="kvizy"></ul>
+        <h2 id="zoznamKvizov">Korábbi kvízeid</h2>
+        <ul id="kvizy" class="quiz-list"></ul>
 
-    <button id="spustitBtn" onclick="location.href='kviz.html'">Új kvíz indítása</button>
-    <button id="logout">Kijelentkezés</button>
-    <button id="langToggle"> English</button>
+        <button id="spustitBtn" onclick="location.href='kviz.html'">Új kvíz indítása</button>
+        <button id="logout">Kijelentkezés</button>
+    </div>
 
     <script>
         let currentLang = "hu";

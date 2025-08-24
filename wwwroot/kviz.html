@@ -3,26 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <title>Kvíz</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <div style="text-align: right; margin-bottom: 10px;">
-        <button id="langToggle">English</button>
+    <div class="container">
+        <button id="langToggle" class="lang-toggle">English</button>
+
+        <h1 id="nadpis">Kresz teszt</h1>
+
+        <div class="timer">
+            <span id="casovyText">Hátralévő idő:</span>
+            <span id="timer">05:00</span>
+        </div>
+
+        <div id="jazykWarning" class="warning"></div>
+
+        <form id="kvizForm"></form>
+        <button id="submitBtn">Válaszok beküldése</button>
+        <div id="vysledok" class="result" style="display: none;"></div>
+        <div id="redirectTimer" class="redirect-timer"></div>
     </div>
-
-    <h1 id="nadpis">Kresz teszt</h1>
-
-    <div>
-        <span id="casovyText">Hátralévő idő:</span>
-        <span id="timer">05:00</span>
-    </div>
-
-    <div id="jazykWarning" style="color: darkred; margin-top: 10px; font-weight: bold;"></div>
-
-    <form id="kvizForm"></form>
-    <button id="submitBtn">Válaszok beküldése</button>
-    <div id="vysledok"></div>
-    <div id="redirectTimer" style="font-weight: bold; color: green; margin-top: 10px;"></div>
 
     <script>
         let currentLang = "hu";
@@ -70,23 +71,25 @@
                 html += `<fieldset><legend>${index + 1}. ${otazka.text}</legend>`;
 
                 if (otazka.obrazky && otazka.obrazky.length > 0) {
+                    html += `<div class="image-container">`;
                     otazka.obrazky.forEach(img => {
                         html += `
-                            <img src="/img/${img}" alt="kép" style="max-width:300px"
-                                onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<div style=\\'color:red;font-weight:bold\\'>[Sajnos a  ${img}] kép nem volt a csatolt fájlok között</div>');">
-                            <br>`;
+                            <img src="/img/${img}" alt="kép" 
+                                onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<div style=\\'color:red;font-weight:bold\\'>[Sajnos a ${img} kép nem volt a csatolt fájlok között]</div>');">`;
                     });
+                    html += `</div>`;
                 }
-
 
                 otazka.odpovede.forEach(odpoved => {
                     html += `
-                        <label>
-                            <input type="radio" name="otazka_${otazka.id}" value="${odpoved.id}">
-                            ${odpoved.text}
-                        </label><br>`;
+                        <div class="quiz-option">
+                            <label>
+                                <input type="radio" name="otazka_${otazka.id}" value="${odpoved.id}">
+                                ${odpoved.text}
+                            </label>
+                        </div>`;
                 });
-                html += `</fieldset><br>`;
+                html += `</fieldset>`;
             });
             $("#kvizForm").html(html);
         });
@@ -110,11 +113,13 @@
                 data: JSON.stringify(odpovede),
                 success: function(data) {
                     clearInterval(timerInterval);
+                    $("#vysledok").removeClass("error").addClass("success").show();
                     $("#vysledok").text(`${texts[currentLang].resultPrefix} ${data.bodov} / ${data.max}`);
                     $("#submitBtn").prop("disabled", true);
                     startRedirectCountdown();
                 },
                 error: function(xhr) {
+                    $("#vysledok").removeClass("success").addClass("error").show();
                     $("#vysledok").text(`${texts[currentLang].errorPrefix} ${xhr.responseText}`);
                 }
             });

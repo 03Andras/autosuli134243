@@ -51,6 +51,11 @@ public class Databaza
         var questionsJson = File.ReadAllText(questionsPath);
 
         var correctWrapper = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(answersJson);
+        if (correctWrapper == null)
+        {
+            Console.WriteLine("Hiba: Nem sikerült betölteni a válaszokat.");
+            return;
+        }
         var correctAnswers = correctWrapper["correct_answers"];
 
         using var doc = JsonDocument.Parse(questionsJson);
