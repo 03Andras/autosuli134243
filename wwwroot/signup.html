@@ -3,33 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <title>Regisztráció / Registration</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <h1 id="nadpis">Felhasználó regisztrációja</h1>
+    <div class="container">
+        <button id="langToggle" class="lang-toggle">English</button>
+        <h1 id="nadpis">Felhasználó regisztrációja</h1>
 
-    <form id="regForm">
-        <label id="menoLabel">Név:</label>
-        <input type="text" name="meno" required><br>
+        <form id="regForm">
+            <div>
+                <label id="menoLabel">Név:</label>
+                <input type="text" name="meno" required>
+            </div>
 
-        <label id="emailLabel">Email:</label>
-        <input type="email" name="email" required><br>
+            <div>
+                <label id="emailLabel">Email:</label>
+                <input type="email" name="email" required>
+            </div>
 
-        <label id="hesloLabel">Jelszó:</label>
-        <input type="password" name="heslo" required><br>
+            <div>
+                <label id="hesloLabel">Jelszó:</label>
+                <input type="password" name="heslo" required>
+            </div>
 
-        <button type="submit" id="regBtn">Regisztráció</button>
-    </form>
+            <button type="submit" id="regBtn">Regisztráció</button>
+        </form>
 
-    <div id="vysledok" style="margin-top: 10px;"></div>
+        <div id="vysledok" class="result" style="display: none;"></div>
 
-    <p>
-        <button onclick="location.href='login.html'" id="backBtn">Bejelentkezés</button>
-    </p>
-
-    <p>
-        <button id="langToggle">English</button>
-    </p>
+        <p>
+            <button onclick="location.href='login.html'" id="backBtn">Bejelentkezés</button>
+        </p>
+    </div>
 
     <script>
         let currentLang = "hu";
@@ -83,9 +89,11 @@
                 heslo: $("input[name='heslo']").val()
             })
             .done(function(data) {
+                $("#vysledok").removeClass("error").addClass("success").show();
                 $("#vysledok").text(texts[currentLang].okPrefix + data);
             })
             .fail(function(xhr) {
+                $("#vysledok").removeClass("success").addClass("error").show();
                 $("#vysledok").text(texts[currentLang].errorPrefix + xhr.responseText);
             });
         });

@@ -10,6 +10,16 @@ public class PouzivatelController : ControllerBase
     [HttpPost("registracia")]
     public IActionResult Registruj([FromForm] string meno, [FromForm] string email, [FromForm] string heslo)
     {
+        // Input validation
+        if (string.IsNullOrWhiteSpace(meno) || meno.Length < 2)
+            return BadRequest("A név legalább 2 karakter legyen. / Name must be at least 2 characters.");
+        
+        if (string.IsNullOrWhiteSpace(email) || !email.Contains('@'))
+            return BadRequest("Érvényes email címet adjon meg. / Please provide a valid email address.");
+        
+        if (string.IsNullOrWhiteSpace(heslo) || heslo.Length < 6)
+            return BadRequest("A jelszó legalább 6 karakter legyen. / Password must be at least 6 characters.");
+
         // Salt generalas
         var salt = Guid.NewGuid().ToString().Substring(0, 8);
         var hash = Zhashuj(heslo + salt);
@@ -48,6 +58,13 @@ public class PouzivatelController : ControllerBase
     [HttpPost("prihlasenie")]
     public IActionResult Prihlasenie([FromForm] string email, [FromForm] string heslo)
     {
+        // Input validation
+        if (string.IsNullOrWhiteSpace(email))
+            return BadRequest("Email cím kötelező. / Email is required.");
+        
+        if (string.IsNullOrWhiteSpace(heslo))
+            return BadRequest("Jelszó kötelező. / Password is required.");
+
         using var spojenie = Databaza.OtvorSpojenie();
 
         var prikaz = spojenie.CreateCommand();
@@ -69,7 +86,14 @@ public class PouzivatelController : ControllerBase
 
         var sessionId = Guid.NewGuid().ToString();
 
-        Response.Cookies.Append("session", sessionId);
+        // Set secure session cookie
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            SameSite = SameSiteMode.Strict,
+            MaxAge = TimeSpan.FromHours(24)
+        };
+        Response.Cookies.Append("session", sessionId, cookieOptions);
         var sessionPrikaz = spojenie.CreateCommand();
         sessionPrikaz.CommandText = @"
     INSERT INTO Session (pouzivatelId, sessionId)
